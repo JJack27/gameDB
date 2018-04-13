@@ -26,6 +26,7 @@ CREATE TABLE Games(game_id INTEGER,
                    studio_id INTEGER,
                    start_time DATE,
                    end_time DATE,
+                   platform CHAR(5),
                    play_status INTEGER,
                    total_time_played INTEGER,
                    PRIMARY KEY(game_id),
@@ -40,6 +41,17 @@ CREATE TABLE Comments(comment_id INTEGER,
                       game_id INTEGER,
                       good_or_bad BOOLEAN
                       comment CHAR(250),
+                      comment_level CHAR(20),
+                      game_record_id INTEGER,
                       PRIMARY KEY(comment_id),
-                      FOREIGN KEY(game_id) REFERENCES Games(game_id));
+                      FOREIGN KEY(game_id) REFERENCES Games(game_id)
+                      FOREIGN KEY(game_record_id) REFERENCES GameRecords(game_record_id));
 
+CREATE TABLE GameRecords(game_record_id INTEGER,
+                         start_time DATE,
+                         end_time DATE,
+                         record_type CHAR(20),
+                         duration TIME,
+                         game_id INTEGER,
+                         PRIMARY KEY(game_record_id),
+                         FOREIGN KEY(game_id) REFERENCES Games(game_id));

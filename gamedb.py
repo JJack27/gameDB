@@ -9,70 +9,96 @@ import tty
 import tkinter
 
 conn = sqlite3.connect("game_db.db")
-'''
-def getch():
-    fd = sys.stdin.fileno()
-    old_settings = termios.tcgetattr(fd)
-    try:
-        tty.setraw(sys.stdin.fileno())
-        ch = sys.stdin.read(1)
- 
-    finally:
-        termios.tcsetattr(fd, termios.TCSADRAIN, old_settings)
-    return ch
-
-def print_menu(menu_title, list_to_print):
-    os.system("clear")
-    print("--------", menu_title, "--------")
-    for i in range(len(list_to_print)):
-
-def main_menu():
-    menu = ["Play Game", "Browse Game Data", "Quit"]
-    print_menu("Main Menu", menu)
-    while True:
-        char = getch()
-        if (char in "123"):
-            choice = int(char)
-            break
-    return choice
-
-def add_new_game(conn):
-    title = "Adding New Game"
+record_start_time = time.time()
+record_end_time = time.time()
+record_id = -1
+timer_started = False
 
 
-# play_status: 0 = unplayed, 1 = playing, 2 = finished
-def play_game(conn):
+
+
+def create_record(lbl_timer):
+    global record_start_time, record_id
+    record_start_time = time.time()
     c = conn.cursor()
-    query = "SELECT game_id, game_name \
-             FROM Games\
-             WHERE play_status = 1; "
-    menu_title = "Play Game"
-    game_id = []
-    game_names = []
-    choice_list = []
-    c.execute(query)
-    results = c.fetchall()
-    for row in results:
-        print(row[0], row[1])
-    game_names.append("Add a new game")
-    print_menu(menu_title,game_names)
-    choice_list = [i+1 for i in range(len(game_names))]
+    qry_max_id = "SELECT MAX(game_record_id) FROM GameRecords;"
+    c.execute(qry_max_id)
+    max_id = c.fetchone()[0]
+    if(max_id == None):
+        max_id = 0
+    record_id = max_id + 1
 
-    while True:
-        choice = int(input("Your Choice: "))
-        if choice in choice_list:
-            break
-    if (choice == choice_list[-1]):
-        add_new_game(conn)    
 
-def browse_data():
-    print("Browse game data")
 
-'''
+def add_game():
+    print("adding game")
+
+def add_comment():
+    print("adding comment")
+
+def pause_record():
+    print("pause record")
+
+def save_record(play_game_page, v_game, v_record_type):
+    print("Save record")
+    global record_end_time
+    record_end_time = time.time()
+    duration = record_end_time - record_start_time
+    record_type = v_record_type.get()
+    game = v_game.get()
+    game = game.split()[0]
+    print(duration, record_type, game)
+
+    play_game_page.destroy()
+
+
 
 def play_game():
+    game_is_started = False
     play_game_page = tkinter.Tk(className= "Play Game")
-    play_game_page.geometry("600x300")
+    play_game_page.geometry("300x300")
+    record_types = ["CG Video", "Fight", "Free Discovery", "Puzzle Solving", "Useless", "Genre-fit gameplay"]
+
+    # fetching gmae info from db
+    c = conn.cursor()
+    game_names = []
+    game_id = []
+    qry_game_info = "SELECT game_id, game_name FROM Games;"
+    c.execute(qry_game_info)
+    result = c.fetchall()
+    for row in result:
+        game_names.append( str(row[0])+ " " +str(row[1]))
+
+    # drop down menus
+    v_game = tkinter.StringVar(play_game_page)
+    v_game.set(game_names[0])
+    menu_games = tkinter.OptionMenu(play_game_page, v_game, *game_names)
+    menu_games.place(anchor = 's',relx = 0.5, rely = 0.3)
+
+    v_record_type = tkinter.StringVar(play_game_page)
+    v_record_type.set(record_types[0])
+    menu_record_types = tkinter.OptionMenu(play_game_page, v_record_type, *record_types)
+    menu_record_types.place(anchor = 's',relx = 0.5, rely = 0.4)
+
+    # buttons 
+    label_timer = tkinter.Label(play_game_page, text="00:00")
+    label_timer.place(anchor= 's', relx=0.5, rely = 0.2)
+
+    btn_play_game = tkinter.Button(play_game_page, text = "Start Record", command =  lambda: create_record(label_timer))
+    btn_play_game.place(anchor = 's',relx = 0.25, rely = 0.6)
+
+    btn_add_game = tkinter.Button(play_game_page, text = "Add New Game", command = add_game)
+    btn_add_game.place(anchor = 's',relx = 0.75, rely = 0.6)
+
+    btn_pause_game = tkinter.Button(play_game_page, text = "Pause", command = pause_record)
+    btn_pause_game.place(anchor = 's',relx = 0.25, rely = 0.7)
+
+    btn_add_comment = tkinter.Button(play_game_page, text = "Add Comment", command = add_comment)
+    btn_add_comment.place(anchor = 's',relx = 0.75, rely = 0.7)
+
+
+    btn_play_game = tkinter.Button(play_game_page, text = "Save", command = lambda: save_record(play_game_page,v_game, v_record_type))
+    btn_play_game.place(anchor = 's',relx = 0.5, rely = 0.9)
 
 
     play_game_page.mainloop()
