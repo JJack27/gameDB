@@ -2,15 +2,15 @@
 import sqlite3
 import datetime
 import sys
-import time 
+import datetime 
 import os
 import termios
 import tty
 import tkinter
 
 conn = sqlite3.connect("game_db.db")
-record_start_time = time.time()
-record_end_time = time.time()
+record_start_time = datetime.datetime.now()
+record_end_time = datetime.datetime.now()
 record_id = -1
 timer_started = False
 
@@ -19,7 +19,7 @@ timer_started = False
 
 def create_record(lbl_timer):
     global record_start_time, record_id
-    record_start_time = time.time()
+    record_start_time = datetime.datetime.now()
     c = conn.cursor()
     qry_max_id = "SELECT MAX(game_record_id) FROM GameRecords;"
     c.execute(qry_max_id)
@@ -42,13 +42,18 @@ def pause_record():
 def save_record(play_game_page, v_game, v_record_type):
     print("Save record")
     global record_end_time
-    record_end_time = time.time()
-    duration = record_end_time - record_start_time
-    record_type = v_record_type.get()
-    game = v_game.get()
-    game = game.split()[0]
-    print(duration, record_type, game)
+    qry_save_record = "INSERT INTO"
 
+    record_end_time = datetime.datetime.now()
+    duration = record_end_time - record_start_time
+    record_type = v_record_type.get() 
+    game_id = v_game.get().split()[0]
+    
+    
+    print("duration =", duration)
+    print("record type =", record_type)
+    print("game_id =", game_id)
+    
     play_game_page.destroy()
 
 
