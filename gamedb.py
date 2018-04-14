@@ -18,15 +18,25 @@ timer_started = False
 
 
 def create_record(lbl_timer):
+    global conn
     global record_start_time, record_id
     record_start_time = datetime.datetime.now()
     c = conn.cursor()
     qry_max_id = "SELECT MAX(game_record_id) FROM GameRecords;"
+    qry_create_record = "INSERT INTO GameRecords VALUES(?,?,?,?,?,?);"
     c.execute(qry_max_id)
     max_id = c.fetchone()[0]
+    print(max_id)
     if(max_id == None):
         max_id = 0
     record_id = max_id + 1
+    values = [record_id, record_start_time.strftime("%B %d, %Y %I:%M%p") ,\
+              record_start_time.strftime("%B %d, %Y %I:%M%p"), "NA",\
+              record_start_time.strftime("%I:%M%p"), -1]
+    c.execute(qry_create_record,values)
+    conn.commit()
+    print("Record created")
+
 
 
 
@@ -42,7 +52,7 @@ def pause_record():
 def save_record(play_game_page, v_game, v_record_type):
     print("Save record")
     global record_end_time
-    qry_save_record = "INSERT INTO"
+    qry_save_record = "INSERT INTO GameRecords"
 
     record_end_time = datetime.datetime.now()
     duration = record_end_time - record_start_time
