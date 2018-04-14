@@ -39,7 +39,7 @@ CREATE TABLE Comments(comment_id INTEGER,
                       comment_type DATE,
                       score INTEGER,
                       game_id INTEGER,
-                      good_or_bad BOOLEAN
+                      good_or_bad BOOLEAN,
                       comment CHAR(250),
                       comment_level CHAR(20),
                       game_record_id INTEGER,
